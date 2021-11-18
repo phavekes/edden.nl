@@ -50,3 +50,9 @@ Alle punten van alle rondes worden opgeteld, en bij 150 punten ben je af.
 - Als je precies op 123 punten komt, krijg je de rest van het spel 4 kaarten
 - Als jouw puntenaantal gelijk is aan je geboortejaar (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
 - Als je je hand leeg speelt (je hebt bijvoorbeeld nog twee 5en in je hand, die leg je tegelijkertijd weg), krijg je -1 op je eindscore voor deze ronde. Dit kun je doen tot hooguit -3
+
+## Suggesties
+
+Ken jij andere regels, of heb je een foutje gezien?
+<a href="{{ site.github.repository_url }}/tree/master/{{ page.relative_path }}">Pas deze pagina aan</a>
+of mail je vraag naar <a href="mailto:suggestie@edden.nl">suggestie@edden.nl</a>.
