@@ -23,7 +23,7 @@ of
 
 - Aas =1
 - Twee = 2
-- Drie is 3
+- Drie = 3
 - ...
 - Tien = 10
 - Boer, Vrouw en Heer = 10
