@@ -39,7 +39,7 @@ Als een speler het laagste aantal punten over heeft, maar niet '***Ik heb het la
 
 ## Einde van het spel
 
-Alle punten van alle rondes worden opgeteld, en bij 150 punten ben je af.
+Alle punten van alle rondes worden opgeteld, en bij meer dan 150 punten ben je af.
 
 ## Extra regels
 
