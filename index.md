@@ -53,6 +53,8 @@ Alle punten van alle rondes worden opgeteld, en bij 150 punten ben je af.
 
 ## Suggesties
 
+https://github.com/phavekes/edden.nl/edit/main/index.md
+
 Ken jij andere regels, of heb je een foutje gezien?
-<a href="{{ site.github.repository_url }}/tree/master/{{ page.relative_path }}">Pas deze pagina aan</a>
+<a href="{{ site.github.repository_url }}/edit/main/index.md">Pas deze pagina aan</a>
 of mail je vraag naar <a href="mailto:suggestie@edden.nl">suggestie@edden.nl</a>.
