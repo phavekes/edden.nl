@@ -21,7 +21,7 @@ of
 
 ### De kaarten zijn punten waard
 
-- Aas =1
+- Aas = 1
 - Twee = 2
 - Drie = 3
 - ...
