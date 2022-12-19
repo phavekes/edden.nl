@@ -31,15 +31,19 @@ of
 
 ## Einde van een ronde
 
-Als je minder dan 8 punten in je hand hebt mag je dat tijdens je beurt zeggen ('**Ik heb het laagste**'), en is de ronde voorbij.
+Als je minder dan 8 punten in je hand hebt **mag** je dat aan het begin van je
+beurt (voordat je een kaart weglegt) zeggen ('**Ik heb het laagste**'), en is de ronde voorbij.
+
 Van alle andere spelers wordt het aantal punten van de kaarten in hun handen opgeteld, en bij hun score opgeteld.
-Als je riep dat je minder dan 8 punten had, en op dat moment het laagste aantal punten hebt krijg je 0 punten
-Maar als een andere speler lager blijkt te habben krijg jij 25 strafpunten per speler die minder punten over heeft.
+Als je riep dat je minder dan 8 punten had, en op dat moment het laagste aantal punten hebt krijg je 0
+punten. Maar als een andere speler lager blijkt te habben krijg jij 25 strafpunten per speler die minder punten over heeft.
+
 Als een speler het laagste aantal punten over heeft, maar niet '***Ik heb het laagste***' heeft gezegd, krijgt het aantal strafpunten zoveel als de punten op zijn kaarten.
 
 ## Einde van het spel
 
 Alle punten van alle rondes worden opgeteld, en bij meer dan 150 punten ben je af.
+De andere spelers spelen door tot de winnaar over blijft.
 
 ## Extra regels
 
