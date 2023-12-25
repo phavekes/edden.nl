@@ -47,11 +47,11 @@ De andere spelers spelen door tot de winnaar over blijft.
 
 ## Extra regels
 
-- Als je twee dezelfde kaarten hebt (bijvoorbeeld 2 drieën) mag de deze allebei weg leggen in 1 beurt, en 1 kaart terug pakken. Als je drie dezelfde hebt ook.
-- 4 opeenvolgende kaarten (bijvoorbeeld 7,8,9 en10) mag je in 1 keer wegleggen als ze verschillende kleuren(harten-klaver-schoppen-ruiten) zijn.
+- Als je twee dezelfde kaarten hebt (bijvoorbeeld 2 drieën of 2 boeren) mag de deze allebei weg leggen in 1 beurt, en 1 kaart terug pakken. Als je drie dezelfde hebt ook. 4 of meer dezelfde mag je niet tegelijk wegleggen  
+- 4 opeenvolgende kaarten (bijvoorbeeld 7,8,9 en10) mag je in 1 keer wegleggen als ze verschillende kleuren(harten-klaver-schoppen-ruiten) zijn. De plaatjes (boer, vrouw, heer, aas of joker) tellen hierbij niet mee. 
 - Als je meerdere kaarten tegelijk weglegt, dan mag de speler na jou uit jouw weggelegde kaarten kiezen welke hij terug pakt.
-- Als een speler op precies op 69 punten staat, wisselen de speler met de hoogste score en de speler met de laatste score van aantal punten.
-- Als je precies op 123 punten komt, krijg je de rest van het spel 4 kaarten
+- Als een speler op precies op 69 punten staat, wisselen de speler met de hoogste score en de speler met de laatste score van aantal punten. Bij gelijke stand wisselen alle spelers met de hoogste of laagste punten.
+- Als je precies op 123 punten komt, krijg je de rest van het spel 4 kaarten bij hey begin van de beurt. 
 - Als jouw puntenaantal gelijk is aan je geboortejaar (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
 - Als je je hand leeg speelt (je hebt bijvoorbeeld nog twee 5en in je hand, die leg je tegelijkertijd weg), krijg je -1 op je eindscore voor deze ronde. Dit kun je doen tot hooguit -3
 
