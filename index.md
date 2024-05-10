@@ -55,7 +55,7 @@ De andere spelers spelen door tot de winnaar over blijft.
 - Als een speler op precies op **69 punten** staat, wisselen de speler met de hoogste score en de speler met de laatste score van aantal punten. Bij gelijke stand wisselen alle spelers met de hoogste of laagste punten.
 - Als je precies op **123 punten** komt, krijg je de rest van het spel 4 kaarten bij het begin van de beurt.
 - Als jouw puntenaantal gelijk is aan je **geboortejaar** (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
-- Als je je **hand leeg** speelt (je hebt bijvoorbeeld nog twee 5-en in je hand, en die leg je tegelijkertijd weg), krijg je -1 op je eindscore voor deze ronde.
+- Als je je **hand leeg** speelt (je hebt bijvoorbeeld nog twee 5-en in je hand, en die leg je tegelijkertijd weg), krijg je (een keer) -1 op je eindscore voor deze ronde.
 
 ## Suggesties
 
