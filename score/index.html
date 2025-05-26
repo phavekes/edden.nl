@@ -1,12 +1,973 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EddenApp Web</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edden Score</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            /* Changed font-family to a generic sans-serif fallback as Inter font is no longer loaded */
+            font-family: sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+        .player-row {
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .player-row:last-child {
+            border-bottom: none;
+        }
+        .player-name-input, .player-dob-input, .score-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: #334155;
+            flex-grow: 1; /* Allow inputs to grow */
+            min-width: 120px; /* Minimum width before wrapping/stacking */
+        }
+        /* Removed fixed flex-basis for player inputs to allow better responsiveness */
+        .score-input {
+            text-align: center;
+        }
+        /* Removed .total-score styling as it's no longer in player-row */
+        .winner-radio {
+            flex-basis: 10%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+        }
+        .button:hover {
+            background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+            transform: translateY(-1px);
+        }
+        .button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .button:disabled {
+            background-image: linear-gradient(to right, #9ca3af, #d1d5db);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .delete-btn {
+            background-color: #ef4444;
+            background-image: none;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            margin-left: 0.5rem;
+            flex-shrink: 0; /* Prevent button from shrinking too much */
+        }
+        .delete-btn:hover {
+            background-color: #dc2626;
+        }
+        .lost-player .player-name-input,
+        .lost-player .player-dob-input,
+        .lost-player .total-score-history-display { /* Added class for history display */
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+        .lost-player .score-input,
+        .lost-player .winner-radio {
+            pointer-events: none; /* Disable input for lost players */
+            opacity: 0.6;
+        }
+        .fewer-cards-player .player-name-input {
+            background-color: #bfdbfe; /* Light blue background */
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .modal-content p {
+            margin-bottom: 1.5rem;
+            color: #475569;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .modal-button {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-confirm {
+            background-color: #22c55e;
+            color: white;
+            border: none;
+        }
+        .modal-confirm:hover {
+            background-color: #16a34a;
+        }
+        .modal-cancel {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+        }
+        .modal-cancel:hover {
+            background-color: #dc2626;
+        }
+
+        /* History Table */
+        .history-table-container {
+            max-height: 300px; /* Limit height for scrollability */
+            overflow-y: auto;
+            margin-top: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .history-table th, .history-table td {
+            padding: 0.75rem 0.5rem; /* Adjusted padding for more content */
+            text-align: center; /* Center align content in cells */
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .history-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            position: sticky;
+            top: 0; /* Keep header visible on scroll */
+            z-index: 1;
+        }
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        .history-table tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+        .history-score-input { /* Specific style for input in history table */
+            width: 64px; /* Tailwind w-16 */
+            padding: 0.25rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.25rem;
+            text-align: center;
+            margin-bottom: 0.25rem; /* Space between input and total */
+        }
+        .winner-cell { /* Apply to the whole td for winner highlight */
+            background-color: #d1fae5; /* Light green for winner */
+        }
+        .special-rule-applied-text {
+            font-weight: bold; /* Make total score text bold when special rule applied */
+            font-size: 0.875rem; /* text-sm */
+        }
+        .total-score-history-display {
+            font-size: 1rem; /* Slightly larger font for total score in history */
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .lost-indicator {
+            color: #dc2626; /* Red color for 'Verloren' */
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .fewer-cards-indicator {
+            color: #16a34a; /* Green color for '4 kaarten' */
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+    </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="main.js"></script>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-700">Edden Score</h1>
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Spelers</h2>
+            <div id="players-container">
+                </div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="add-player-btn" class="button bg-green-500 hover:bg-green-600">Speler Toevoegen</button>
+                </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Huidige Ronde Scores</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="current-round-inputs">
+                </div>
+            <div class="flex justify-center mt-6">
+                <button id="apply-round-btn" class="button">Scores Toepassen</button>
+            </div>
+        </div>
+
+        <div class="mb-8" id="last-round-summary-section">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Samenvatting Laatste Ronde</h2>
+            <div id="last-round-summary" class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                <p class="text-gray-600">Nog geen rondes gespeeld.</p>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Score Geschiedenis</h2>
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Ronde</th>
+                            </tr>
+                    </thead>
+                    <tbody id="score-history-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex justify-center gap-4 mt-8">
+            <button id="restart-game-btn" class="button bg-orange-500 hover:bg-orange-600">Spel Herstarten</button>
+            <button id="rules-link-btn" class="button bg-blue-500 hover:bg-blue-600">Bekijk Regels</button>
+        </div>
+    </div>
+
+    <audio id="tadaa-sound" src="https://www.soundjay.com/misc/sounds/tada-1.mp3" preload="auto"></audio>
+    <audio id="sad-sound" src="https://www.soundjay.com/misc/sounds/sad-trombone-01.mp3" preload="auto"></audio>
+
+    <div id="special-rule-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title">Speciale Regel Toegepast!</h3>
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-confirm-btn" class="modal-button modal-confirm">Bevestigen</button>
+                <button id="modal-cancel-btn" class="modal-button modal-cancel">Annuleren</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core Game Data
+        let players = []; // Array of player objects
+        // gameHistory now stores richer data for each round
+        let gameHistory = []; // Array of round objects: { roundNumber, roundInputScores[], endOfRoundPlayerStates[], rulesAppliedInRound: boolean }
+        let roundCounter = 0; // Tracks the current round number
+
+        // DOM Elements
+        const playersContainer = document.getElementById('players-container');
+        const addPlayerBtn = document.getElementById('add-player-btn');
+        const currentRoundInputsContainer = document.getElementById('current-round-inputs');
+        const applyRoundBtn = document.getElementById('apply-round-btn');
+        const scoreHistoryBody = document.getElementById('score-history-body');
+        const restartGameBtn = document.getElementById('restart-game-btn');
+        const rulesLinkBtn = document.getElementById('rules-link-btn');
+        const tadaaSound = document.getElementById('tadaa-sound');
+        const sadSound = document.getElementById('sad-sound'); // New sad sound element
+        const lastRoundSummaryDiv = document.getElementById('last-round-summary');
+
+        // Modal Elements
+        const specialRuleModal = document.getElementById('special-rule-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn'); // Corrected assignment
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+        // --- Utility Functions ---
+
+        /**
+         * Plays the "Tadaa" sound.
+         */
+        function playTadaaSound() {
+            if (tadaaSound) {
+                tadaaSound.currentTime = 0; // Rewind to start
+                tadaaSound.play().catch(e => console.error("Fout bij afspelen geluid:", e));
+            }
+        }
+
+        /**
+         * Plays a sad sound.
+         */
+        function playSadSound() {
+            if (sadSound) {
+                sadSound.currentTime = 0; // Rewind to start
+                sadSound.play().catch(e => console.error("Fout bij afspelen droevig geluid:", e));
+            }
+        }
+
+        /**
+         * Shows a confirmation modal for special rules.
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The message to display.
+         * @returns {Promise<boolean>} - Resolves true if confirmed, false if cancelled.
+         */
+        function showConfirmationModal(title, message) {
+            return new Promise((resolve) => {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                specialRuleModal.classList.add('active');
+
+                const confirmHandler = () => {
+                    specialRuleModal.classList.remove('active');
+                    modalConfirmBtn.removeEventListener('click', confirmHandler);
+                    modalCancelBtn.removeEventListener('click', cancelHandler);
+                    resolve(true);
+                };
+
+                const cancelHandler = () => {
+                    specialRuleModal.classList.remove('active');
+                    modalConfirmBtn.removeEventListener('click', confirmHandler);
+                    modalCancelBtn.removeEventListener('click', cancelHandler);
+                    resolve(false);
+                };
+
+                modalConfirmBtn.addEventListener('click', confirmHandler);
+                modalCancelBtn.addEventListener('click', cancelHandler);
+            });
+        }
+
+        /**
+         * Saves game data to local storage.
+         */
+        function saveGameData() {
+            try {
+                localStorage.setItem('eddenPlayers', JSON.stringify(players));
+                localStorage.setItem('eddenGameHistory', JSON.stringify(gameHistory));
+                localStorage.setItem('eddenRoundCounter', roundCounter.toString());
+            } catch (e) {
+                console.error("Fout bij opslaan in lokale opslag:", e);
+            }
+        }
+
+        /**
+         * Loads game data from local storage.
+         */
+        function loadGameData() {
+            try {
+                const savedPlayers = localStorage.getItem('eddenPlayers');
+                const savedHistory = localStorage.getItem('eddenGameHistory');
+                const savedRoundCounter = localStorage.getItem('eddenRoundCounter');
+
+                if (savedPlayers) {
+                    players = JSON.parse(savedPlayers);
+                } else {
+                    // Default players if no data found
+                    players = [
+                        { id: 'p1', name: 'Speler 1', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                        { id: 'p2', name: 'Speler 2', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                        { id: 'p3', name: 'Speler 3', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                        { id: 'p4', name: 'Speler 4', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false }
+                    ];
+                }
+
+                if (savedHistory) {
+                    gameHistory = JSON.parse(savedHistory);
+                } else {
+                    gameHistory = [];
+                }
+
+                if (savedRoundCounter) {
+                    roundCounter = parseInt(savedRoundCounter, 10);
+                } else {
+                    roundCounter = 0;
+                }
+            } catch (e) {
+                console.error("Fout bij laden uit lokale opslag:", e);
+                // Reset to default if loading fails
+                players = [
+                    { id: 'p1', name: 'Speler 1', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                    { id: 'p2', name: 'Speler 2', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                    { id: 'p3', name: 'Speler 3', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false },
+                    { id: 'p4', name: 'Speler 4', dob: '1978-04-24', scores: [], totalScore: 0, hasLost: false, hasFewerCards: false }
+                ];
+                gameHistory = [];
+                roundCounter = 0;
+            }
+        }
+
+        /**
+         * Generates a unique ID for players.
+         * @returns {string} A unique ID.
+         */
+        function generateId() {
+            return 'p' + Date.now() + Math.floor(Math.random() * 1000);
+        }
+
+        /**
+         * Renders the player list and current round input fields.
+         */
+        function renderPlayers() {
+            playersContainer.innerHTML = '';
+            currentRoundInputsContainer.innerHTML = '';
+
+            players.forEach(player => {
+                // Player management row
+                const playerRow = document.createElement('div');
+                playerRow.id = `player-row-${player.id}`;
+                playerRow.className = `player-row ${player.hasLost ? 'lost-player' : ''} ${player.hasFewerCards ? 'fewer-cards-player' : ''}`;
+                playerRow.innerHTML = `
+                    <input type="text" class="player-name-input" value="${player.name}" data-player-id="${player.id}" placeholder="Spelernaam">
+                    <input type="date" class="player-dob-input" value="${player.dob}" data-player-id="${player.id}">
+                    <button class="delete-btn" data-player-id="${player.id}">Verwijder</button>
+                `;
+                playersContainer.appendChild(playerRow);
+
+                // Current round input card - only render if player has NOT lost
+                if (!player.hasLost) {
+                    const roundInputCard = document.createElement('div');
+                    roundInputCard.className = `bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col gap-2`; // Removed lost-player class here
+                    roundInputCard.innerHTML = `
+                        <label class="font-semibold text-gray-700">${player.name}</label>
+                        <input type="number" class="score-input" data-player-id="${player.id}" value="0" min="0">
+                        <div class="winner-radio flex items-center justify-center gap-2">
+                            <input type="radio" name="winner" id="winner-${player.id}" value="${player.id}" class="form-radio text-indigo-600">
+                            <label for="winner-${player.id}" class="text-sm text-gray-600">Winnaar</label>
+                        </div>
+                    `;
+                    currentRoundInputsContainer.appendChild(roundInputCard);
+                }
+            });
+
+            attachPlayerEventListeners();
+            updatePlayerControls();
+        }
+
+        /**
+         * Attaches event listeners for player name, DOB, and delete buttons.
+         */
+        function attachPlayerEventListeners() {
+            document.querySelectorAll('.player-name-input').forEach(input => {
+                input.onchange = (e) => {
+                    const playerId = e.target.dataset.playerId;
+                    const player = players.find(p => p.id === playerId);
+                    if (player) {
+                        player.name = e.target.value;
+                        saveGameData();
+                        renderPlayers(); // Re-render to update current round inputs
+                        renderScoreHistory(); // Re-render history header
+                    }
+                };
+            });
+
+            document.querySelectorAll('.player-dob-input').forEach(input => {
+                input.onchange = (e) => {
+                    const playerId = e.target.dataset.playerId;
+                    const player = players.find(p => p.id === playerId);
+                    if (player) {
+                        player.dob = e.target.value;
+                        saveGameData();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const playerIdToDelete = e.target.dataset.playerId;
+                    players = players.filter(p => p.id !== playerIdToDelete);
+                    // Filter out this player's data from game history for all rounds
+                    gameHistory.forEach(roundEntry => {
+                        roundEntry.roundInputScores = roundEntry.roundInputScores.filter(scoreEntry => scoreEntry.playerId !== playerIdToDelete);
+                        roundEntry.endOfRoundPlayerStates = roundEntry.endOfRoundPlayerStates.filter(playerState => playerState.playerId !== playerIdToDelete);
+                    });
+
+                    recalculateAllScores(); // Recalculate everything after deletion
+                    saveGameData();
+                    renderPlayers();
+                    renderScoreHistory();
+                    renderLastRoundSummary(); // Update summary after deletion
+                };
+            });
+        }
+
+        /**
+         * Updates the enabled/disabled state of add/delete player buttons.
+         */
+        function updatePlayerControls() {
+            addPlayerBtn.disabled = players.length >= 10;
+            // The "Delete Last Player" button was removed as per request, so no need to manage its disabled state.
+        }
+
+        /**
+         * Recalculates all scores from scratch based on gameHistory.
+         * This is crucial for "Edit previous score" and player deletion.
+         */
+        async function recalculateAllScores() {
+            // Reset players' current scores and states for recalculation
+            players.forEach(p => {
+                p.totalScore = 0;
+                p.hasLost = false;
+                p.hasFewerCards = false;
+                p.scores = []; // Reset individual round scores storage
+            });
+
+            // Re-apply scores round by round from the beginning up to the current gameHistory length
+            for (let i = 0; i < gameHistory.length; i++) {
+                const roundEntry = gameHistory[i];
+                const currentRoundInputScores = roundEntry.roundInputScores;
+
+                // Create a temporary map of player IDs to their scores for this round's input
+                const roundInputScoreMap = {};
+                currentRoundInputScores.forEach(entry => {
+                    roundInputScoreMap[entry.playerId] = entry.score;
+                });
+
+                // Apply points for this round to each player's total score
+                players.forEach(p => {
+                    if (!p.hasLost) { // Only active players get points
+                        const scoreToAdd = roundInputScoreMap[p.id] !== undefined ? roundInputScoreMap[p.id] : 0;
+                        p.totalScore += scoreToAdd;
+                        p.scores.push(scoreToAdd); // Store individual round score
+                    } else {
+                        p.scores.push(0); // Store 0 for lost players to maintain array length consistency
+                    }
+                });
+
+                // Apply special rules for this round
+                // Note: applySpecialRules modifies player.totalScore and hasLost/hasFewerCards directly
+                // We pass false to showModals as this is a recalculation, not a new round.
+                const wasRuleAppliedInRecalculation = await applySpecialRules(false);
+                roundEntry.rulesAppliedInRound = wasRuleAppliedInRecalculation; // Update the flag
+
+                // After applying scores and rules, capture the end-of-round state for history
+                roundEntry.endOfRoundPlayerStates = players.map(p => ({
+                    playerId: p.id,
+                    totalScore: p.totalScore,
+                    hasLost: p.hasLost,
+                    hasFewerCards: p.hasFewerCards
+                }));
+            }
+
+            // After recalculation, update UI
+            renderPlayers();
+            renderScoreHistory();
+            renderLastRoundSummary();
+            saveGameData();
+        }
+
+        /**
+         * Applies special rules based on current player scores.
+         * @param {boolean} showModals - Whether to show confirmation modals for rules.
+         */
+        async function applySpecialRules(showModals = true) {
+            const activePlayers = players.filter(p => !p.hasLost);
+            const currentYear = new Date().getFullYear();
+            let rulesApplied = false;
+
+            // Regel 1: Geboortejaar (Birth Year)
+            // Als jouw puntenaantal gelijk is aan je geboortejaar (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
+            for (const player of activePlayers) {
+                const birthYear = player.dob ? new Date(player.dob).getFullYear() : null;
+                if (birthYear) {
+                    let targetScoreForBirthYear = 0;
+                    if (birthYear < 2000) {
+                        targetScoreForBirthYear = birthYear % 100; // Bijv. 1988 -> 88
+                    } else {
+                        targetScoreForBirthYear = 100 + (birthYear % 100); // Bijv. 2005 -> 105
+                    }
+
+                    if (player.totalScore === targetScoreForBirthYear) {
+                        const age = currentYear - birthYear;
+                        const message = `${player.name} heeft zijn/haar geboortejaar-score (${targetScoreForBirthYear} punten) bereikt! Zijn/haar leeftijd (${age}) wordt van de score afgetrokken.`;
+                        if (showModals) {
+                            playTadaaSound();
+                            const confirmed = await showConfirmationModal("Geboortejaar Regel!", message);
+                            if (confirmed) {
+                                player.totalScore -= age;
+                                rulesApplied = true;
+                            }
+                        } else {
+                            player.totalScore -= age;
+                            rulesApplied = true;
+                        }
+                    }
+                }
+            }
+
+            // Regel 2: Score 69 Wissel (Score 69 Swap)
+            // Als een speler op precies op 69 punten staat, wisselen de speler met de hoogste score en de speler met de laatste score van aantal punten. Bij gelijke stand wisselen alle spelers met de hoogste of laagste punten.
+            const playerWith69 = activePlayers.find(p => p.totalScore === 69);
+            if (playerWith69 && activePlayers.length >= 2) {
+                // Vind alle laagste en hoogste scores onder actieve spelers
+                const allScores = activePlayers.map(p => p.totalScore);
+                const minScore = Math.min(...allScores);
+                const maxScore = Math.max(...allScores);
+
+                // Identificeer spelers met de laagste en hoogste scores
+                const lowestScorePlayers = activePlayers.filter(p => p.totalScore === minScore);
+                const highestScorePlayers = activePlayers.filter(p => p.totalScore === maxScore);
+
+                // Zorg ervoor dat er verschillende laagste en hoogste scores zijn om te wisselen
+                if (minScore !== maxScore) {
+                    const message = `Iemand heeft 69 punten behaald! De spelers met de laagste score (${minScore} punten) en de spelers met de hoogste score (${maxScore} punten) zullen van score wisselen.`;
+                    if (showModals) {
+                        playTadaaSound();
+                        const confirmed = await showConfirmationModal("Score Wissel!", message);
+                        if (confirmed) {
+                            // Voer de wissel uit voor alle geïdentificeerde spelers
+                            lowestScorePlayers.forEach(p => p.totalScore = maxScore);
+                            highestScorePlayers.forEach(p => p.totalScore = minScore);
+                            rulesApplied = true;
+                        }
+                    } else {
+                        lowestScorePlayers.forEach(p => p.totalScore = maxScore);
+                        highestScorePlayers.forEach(p => p.totalScore = minScore);
+                        rulesApplied = true;
+                    }
+                }
+            }
+
+            // Regel 3: 123 Punten (Minder Kaarten)
+            // Als je precies op 123 punten komt, krijg je de rest van het spel 4 kaarten bij het begin van de beurt.
+            players.forEach(player => {
+                if (player.totalScore === 123 && !player.hasFewerCards) {
+                    player.hasFewerCards = true;
+                    if (showModals) {
+                        playTadaaSound(); // Still play tadaa for 123 points
+                        showConfirmationModal("4 Kaarten Regel!", `${player.name} heeft precies 123 punten bereikt! Hij/zij speelt de rest van het spel met 4 kaarten.`);
+                    }
+                    rulesApplied = true;
+                }
+            });
+
+            // Regel 4: 150 Punten Verlies (150 Points Loss)
+            // Als een speler 150 punten of meer bereikt, verliest hij/zij het spel.
+            players.forEach(player => {
+                if (player.totalScore >= 150 && !player.hasLost) {
+                    player.hasLost = true;
+                    if (showModals) {
+                        playSadSound(); // Play sad sound for losing
+                        showConfirmationModal("Speler Verloren!", `${player.name} heeft ${player.totalScore} punten bereikt en heeft verloren! Hij/zij is uit het spel.`);
+                    }
+                    rulesApplied = true;
+                }
+            });
+
+            return rulesApplied;
+        }
+
+        /**
+         * Handles applying scores for the current round.
+         */
+        async function applyRoundScores() {
+            const currentRoundInputScores = []; // Stores the raw scores entered for this round
+            const winnerId = document.querySelector('input[name="winner"]:checked')?.value;
+
+            // Get scores from inputs for active players
+            document.querySelectorAll('.score-input').forEach(input => {
+                const playerId = input.dataset.playerId;
+                const score = parseInt(input.value, 10);
+                if (!isNaN(score)) {
+                    currentRoundInputScores.push({ playerId, score, isWinner: playerId === winnerId });
+                }
+            });
+
+            // Apply points to total scores for active players
+            players.forEach(p => {
+                // Only apply points if the player has NOT lost
+                if (!p.hasLost) {
+                    const entry = currentRoundInputScores.find(s => s.playerId === p.id);
+                    const scoreToAdd = entry ? entry.score : 0;
+                    p.totalScore += scoreToAdd;
+                    p.scores.push(scoreToAdd); // Store individual round score
+                } else {
+                    // For lost players, push 0 to maintain array length consistency in history
+                    p.scores.push(0);
+                }
+            });
+
+            // Apply special rules after score update
+            const wasRuleApplied = await applySpecialRules(true); // Show modals for new round
+
+            // Capture the end-of-round state for history
+            const endOfRoundPlayerStates = players.map(p => ({
+                playerId: p.id,
+                totalScore: p.totalScore,
+                hasLost: p.hasLost,
+                hasFewerCards: p.hasFewerCards
+            }));
+
+            // Add the new round to game history
+            gameHistory.push({
+                roundNumber: ++roundCounter, // Increment roundCounter and use it
+                roundInputScores: currentRoundInputScores,
+                endOfRoundPlayerStates: endOfRoundPlayerStates,
+                rulesAppliedInRound: wasRuleApplied // Store if any rule was applied
+            });
+
+            // Update UI and save
+            renderPlayers();
+            renderScoreHistory();
+            renderLastRoundSummary();
+            saveGameData();
+
+            // Reset current round inputs
+            document.querySelectorAll('.score-input').forEach(input => input.value = '0');
+            document.querySelectorAll('input[name="winner"]').forEach(radio => radio.checked = false);
+
+            // Check for game end condition (only one active player left)
+            const remainingActivePlayers = players.filter(p => !p.hasLost);
+            if (remainingActivePlayers.length === 1 && players.length > 1) {
+                const winner = remainingActivePlayers[0];
+                await showConfirmationModal("Spel Voorbij!", `${winner.name} is de laatste speler en wint het spel!`);
+                applyRoundBtn.disabled = true;
+            } else if (remainingActivePlayers.length === 0 && players.length > 0) {
+                 await showConfirmationModal("Spel Voorbij!", `Alle spelers hebben verloren! Geen winnaar deze keer.`);
+                 applyRoundBtn.disabled = true;
+            }
+        }
+
+        /**
+         * Renders the summary of the last completed round.
+         */
+        function renderLastRoundSummary() {
+            if (gameHistory.length === 0) {
+                lastRoundSummaryDiv.innerHTML = '<p class="text-gray-600">Nog geen rondes gespeeld.</p>';
+                return;
+            }
+
+            const lastRoundEntry = gameHistory[gameHistory.length - 1];
+            let summaryHtml = `<p class="text-gray-700 font-medium mb-2">Ronde ${lastRoundEntry.roundNumber} Scores:</p><ul class="list-disc list-inside space-y-1">`;
+
+            lastRoundEntry.roundInputScores.forEach(inputScoreEntry => {
+                const player = players.find(p => p.id === inputScoreEntry.playerId);
+                const playerState = lastRoundEntry.endOfRoundPlayerStates.find(state => state.playerId === inputScoreEntry.playerId);
+
+                if (player && playerState) {
+                    const winnerText = inputScoreEntry.isWinner ? ' (Winnaar)' : '';
+                    summaryHtml += `<li class="${inputScoreEntry.isWinner ? 'font-semibold text-green-700' : 'text-gray-600'}">
+                        ${player.name}: Toegevoegd ${inputScoreEntry.score} punten (Totaal: ${playerState.totalScore})${winnerText}
+                    </li>`;
+                }
+            });
+            summaryHtml += '</ul>';
+            lastRoundSummaryDiv.innerHTML = summaryHtml;
+        }
+
+
+        /**
+         * Renders the score history table.
+         */
+        function renderScoreHistory() {
+            scoreHistoryBody.innerHTML = '';
+            const historyTableHead = document.querySelector('.history-table thead tr');
+            historyTableHead.innerHTML = '<th>Ronde</th>'; // Reset header
+
+            players.forEach(p => {
+                const th = document.createElement('th');
+                let playerHeaderHtml = `${p.name}`;
+
+                // Add 'Verloren' indicator if player has lost
+                if (p.hasLost) {
+                    playerHeaderHtml += `<br><span class="lost-indicator">Verloren</span>`;
+                }
+                // Add '4 kaarten' indicator if player has fewer cards and is not lost
+                else if (p.hasFewerCards) {
+                    playerHeaderHtml += `<br><span class="fewer-cards-indicator">4 kaarten</span>`;
+                }
+
+                // Display current total score in the header
+                playerHeaderHtml += `<br><span class="text-sm font-normal text-gray-500">(Totaal: ${p.totalScore})</span>`;
+                th.innerHTML = playerHeaderHtml;
+                historyTableHead.appendChild(th);
+            });
+
+            gameHistory.forEach((roundEntry, roundIndex) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${roundEntry.roundNumber}</td>`; // Round number
+
+                players.forEach(player => {
+                    const td = document.createElement('td');
+                    // Find the input score for this player in this specific round
+                    const inputScoreEntry = roundEntry.roundInputScores.find(entry => entry.playerId === player.id);
+                    const addedScore = inputScoreEntry ? inputScoreEntry.score : 0; // Default to 0 if player wasn't in this round
+                    const isWinner = inputScoreEntry ? inputScoreEntry.isWinner : false;
+
+                    // Find the end-of-round total score for this player
+                    const endOfRoundState = roundEntry.endOfRoundPlayerStates.find(state => state.playerId === player.id);
+                    const totalScore = endOfRoundState ? endOfRoundState.totalScore : '-'; // Use '-' if player wasn't in this round
+
+                    // Determine if the player was lost at the end of this round
+                    const wasLostAtEndOfRound = endOfRoundState ? endOfRoundState.hasLost : false;
+
+                    // Apply winner highlight to the cell
+                    if (isWinner) {
+                        td.classList.add('winner-cell');
+                    }
+
+                    // Apply bolding if a special rule was applied in this round
+                    const specialRuleAppliedClass = roundEntry.rulesAppliedInRound ? 'special-rule-applied-text' : '';
+
+                    // Add an input field for editing the ADDED score
+                    // Display both added score and total score
+                    td.innerHTML += `
+                        <input type="number" value="${addedScore}"
+                               data-round-index="${roundIndex}"
+                               data-player-id="${player.id}"
+                               class="history-score-input"
+                               ${wasLostAtEndOfRound ? 'disabled' : ''}>
+                        <div class="total-score-history-display ${specialRuleAppliedClass}">(Totaal: ${totalScore})</div>
+                    `;
+                    tr.appendChild(td);
+                });
+                scoreHistoryBody.appendChild(tr);
+            });
+
+            attachHistoryEditListeners();
+        }
+
+        /**
+         * Attaches event listeners for editing scores in the history table.
+         */
+        function attachHistoryEditListeners() {
+            document.querySelectorAll('.history-score-input').forEach(input => {
+                input.onchange = async (e) => {
+                    const roundIndex = parseInt(e.target.dataset.roundIndex, 10);
+                    const playerId = e.target.dataset.playerId;
+                    const newAddedScore = parseInt(e.target.value, 10);
+
+                    if (isNaN(newAddedScore)) {
+                        console.error("Ongeldige score ingevoerd.");
+                        return;
+                    }
+
+                    // Update the roundInputScores in gameHistory
+                    const roundToEdit = gameHistory[roundIndex];
+                    let scoreEntryToEdit = roundToEdit.roundInputScores.find(entry => entry.playerId === playerId);
+
+                    if (scoreEntryToEdit) {
+                        scoreEntryToEdit.score = newAddedScore;
+                    } else {
+                        // If player was added later and we're editing an earlier round, add a new input score entry
+                        roundToEdit.roundInputScores.push({ playerId, score: newAddedScore, isWinner: false });
+                    }
+
+                    // Recalculate all scores from the edited round onwards
+                    // We start recalculation from 0 to ensure all cascading effects are correctly applied.
+                    await recalculateAllScores();
+                };
+            });
+        }
+
+        /**
+         * Resets the game to its initial state.
+         */
+        function restartGame() {
+            if (confirm("Weet je zeker dat je het spel wilt herstarten? Alle scores gaan verloren.")) {
+                localStorage.removeItem('eddenPlayers');
+                localStorage.removeItem('eddenGameHistory');
+                localStorage.removeItem('eddenRoundCounter');
+                loadGameData(); // Load default players
+                renderPlayers();
+                renderScoreHistory();
+                renderLastRoundSummary(); // Clear/reset summary
+                applyRoundBtn.disabled = false; // Re-enable apply button
+                // Reset current round inputs
+                document.querySelectorAll('.score-input').forEach(input => input.value = '0');
+                document.querySelectorAll('input[name="winner"]').forEach(radio => radio.checked = false);
+            }
+        }
+
+        // --- Event Listeners ---
+        addPlayerBtn.addEventListener('click', () => {
+            if (players.length < 10) {
+                const newPlayerId = generateId();
+                players.push({
+                    id: newPlayerId,
+                    name: `Speler ${players.length + 1}`,
+                    dob: '1978-04-24', // Default DOB
+                    scores: [], // This array will store individual round added scores
+                    totalScore: 0,
+                    hasLost: false,
+                    hasFewerCards: false
+                });
+                saveGameData();
+                renderPlayers();
+                renderScoreHistory(); // Update history header
+                renderLastRoundSummary(); // Update summary
+            }
+        });
+
+        applyRoundBtn.addEventListener('click', applyRoundScores);
+        restartGameBtn.addEventListener('click', restartGame);
+
+        rulesLinkBtn.addEventListener('click', () => {
+            // Open rules in a new tab
+            window.open('https://edden.nl/', '_blank');
+        });
+
+        // Initial Load
+        window.onload = () => {
+            loadGameData();
+            renderPlayers();
+            renderScoreHistory();
+            renderLastRoundSummary(); // Render summary on initial load
+        };
+
+    </script>
 </body>
 </html>
