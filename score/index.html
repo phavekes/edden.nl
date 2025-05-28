@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edden Score</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./script.js"></script>
     <style>
         body {
-            /* Changed font-family to a generic sans-serif fallback as Inter font is no longer loaded */
-            font-family: sans-serif;
-            background-color: #f0f4f8;
+            background-color: #ece4d8; /* Nieuwe achtergrondkleur */
+            font-family: Georgia, Palatino, "Palatino Linotype", Times, "Times New Roman", serif; /* Nieuw lettertype */
+            font-size: 15px; /* Nieuwe lettergrootte */
+            line-height: 1.5; /* Nieuwe regelhoogte */
+            font-weight: normal; /* Normaal lettertypegewicht */
             color: #334155;
             min-height: 100vh;
             display: flex;
@@ -47,11 +49,9 @@
             flex-grow: 1; /* Allow inputs to grow */
             min-width: 120px; /* Minimum width before wrapping/stacking */
         }
-        /* Removed fixed flex-basis for player inputs to allow better responsiveness */
         .score-input {
             text-align: center;
         }
-        /* Removed .total-score styling as it's no longer in player-row */
         .winner-radio {
             flex-basis: 10%;
             display: flex;
@@ -65,39 +65,43 @@
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
-            color: white;
+            color: white; /* Default white text for all buttons */
             border: none;
         }
-        .button:hover {
-            background-image: linear-gradient(to right, #4f46e5, #7c3aed);
-            transform: translateY(-1px);
+        /* Specific button colors */
+        #add-player-btn, #apply-round-btn, #rules-link-btn {
+            background-color: #5b7f98;
         }
+        #add-player-btn:hover, #apply-round-btn:hover, #rules-link-btn:hover {
+            background-color: #4a6c81;
+        }
+        #restart-game-btn, .delete-btn {
+            background-color: #7c334f;
+            color: white; /* Explicitly ensure white text for these buttons */
+        }
+        #restart-game-btn:hover, .delete-btn:hover {
+            background-color: #6a2d44;
+        }
+
         .button:active {
             transform: translateY(0);
             box-shadow: none;
         }
         .button:disabled {
-            background-image: linear-gradient(to right, #9ca3af, #d1d5db);
+            background-color: #9ca3af;
             cursor: not-allowed;
             box-shadow: none;
         }
         .delete-btn {
-            background-color: #ef4444;
-            background-image: none;
-            color: white;
             padding: 0.4rem 0.8rem;
             font-size: 0.8rem;
             border-radius: 0.5rem;
             margin-left: 0.5rem;
             flex-shrink: 0; /* Prevent button from shrinking too much */
         }
-        .delete-btn:hover {
-            background-color: #dc2626;
-        }
         .lost-player .player-name-input,
         .lost-player .player-dob-input,
-        .lost-player .total-score-history-display { /* Added class for history display */
+        .lost-player .total-score-history-display {
             color: #9ca3af;
             text-decoration: line-through;
         }
@@ -185,8 +189,7 @@
 
         /* History Table */
         .history-table-container {
-            max-height: 300px; /* Limit height for scrollability */
-            overflow-y: auto;
+            /* Removed max-height and overflow-y for full display */
             margin-top: 1.5rem;
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
@@ -245,24 +248,41 @@
             font-weight: bold;
             font-size: 0.8rem;
         }
+        /* Main title styling */
+        .main-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            font-style: normal;
+            text-transform: uppercase;
+            color: #ece4d8; /* Text color for the title */
+            text-align: center;
+            line-height: 1;
+            padding: 14px 20px 20px; /* Increased padding-bottom for more space */
+            background-color: #7c334f; /* Background for the title to show text color */
+            border-radius: 1rem 1rem 0 0; /* Rounded top corners */
+            margin-top: -2rem; /* Pull it up to sit on top of the container */
+            margin-left: -2rem; /* Extend to the left edge of the container */
+            margin-right: -2rem; /* Extend to the right edge of the container */
+            margin-bottom: 2rem; /* Added margin-bottom for more space */
+        }
 
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-700">Edden Score</h1>
+        <h1 class="main-title">Edden Score</h1>
 
         <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Spelers</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-[#5b7f98]">Spelers</h2>
             <div id="players-container">
                 </div>
             <div class="flex justify-center gap-4 mt-6">
-                <button id="add-player-btn" class="button bg-green-500 hover:bg-green-600">Speler Toevoegen</button>
+                <button id="add-player-btn" class="button">Speler Toevoegen</button>
                 </div>
         </div>
 
         <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Huidige Ronde Scores</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-[#5b7f98]">Huidige Ronde Scores</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="current-round-inputs">
                 </div>
             <div class="flex justify-center mt-6">
@@ -270,15 +290,15 @@
             </div>
         </div>
 
-        <div class="mb-8" id="last-round-summary-section">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Samenvatting Laatste Ronde</h2>
-            <div id="last-round-summary" class="bg-gray-50 p-4 rounded-lg shadow-sm">
-                <p class="text-gray-600">Nog geen rondes gespeeld.</p>
+        <div class="mb-8" id="current-scores-section">
+            <h2 class="text-2xl font-semibold mb-4 text-[#5b7f98]">Actuele Scores</h2>
+            <div id="current-scores-display" class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                <p class="text-gray-600">Nog geen spelers.</p>
             </div>
         </div>
 
         <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Score Geschiedenis</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-[#5b7f98]">Score Geschiedenis</h2>
             <div class="history-table-container">
                 <table class="history-table">
                     <thead>
@@ -293,13 +313,13 @@
         </div>
 
         <div class="flex justify-center gap-4 mt-8">
-            <button id="restart-game-btn" class="button bg-orange-500 hover:bg-orange-600">Spel Herstarten</button>
-            <button id="rules-link-btn" class="button bg-blue-500 hover:bg-blue-600">Bekijk Regels</button>
+            <button id="restart-game-btn" class="button">Spel Herstarten</button>
+            <button id="rules-link-btn" class="button">Bekijk Regels</button>
         </div>
     </div>
 
-    <audio id="tadaa-sound" src="https://www.soundjay.com/misc/sounds/tada-1.mp3" preload="auto"></audio>
-    <audio id="sad-sound" src="https://www.soundjay.com/misc/sounds/sad-trombone-01.mp3" preload="auto"></audio>
+    <audio id="tadaa-sound" src="./tada-1.mp3" preload="auto"></audio>
+    <audio id="sad-sound" src="./sad-trombone.mp3" preload="auto"></audio>
 
     <div id="special-rule-modal" class="modal-overlay">
         <div class="modal-content">
@@ -329,13 +349,13 @@
         const rulesLinkBtn = document.getElementById('rules-link-btn');
         const tadaaSound = document.getElementById('tadaa-sound');
         const sadSound = document.getElementById('sad-sound'); // New sad sound element
-        const lastRoundSummaryDiv = document.getElementById('last-round-summary');
+        const currentScoresDisplayDiv = document.getElementById('current-scores-display'); // Renamed from lastRoundSummaryDiv
 
         // Modal Elements
         const specialRuleModal = document.getElementById('special-rule-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn'); // Corrected assignment
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
         // --- Utility Functions ---
@@ -364,12 +384,16 @@
          * Shows a confirmation modal for special rules.
          * @param {string} title - The title of the modal.
          * @param {string} message - The message to display.
+         * @param {string} confirmButtonText - Text for the confirm button.
+         * @param {string} cancelButtonText - Text for the cancel button.
          * @returns {Promise<boolean>} - Resolves true if confirmed, false if cancelled.
          */
-        function showConfirmationModal(title, message) {
+        function showConfirmationModal(title, message, confirmButtonText = "Bevestigen", cancelButtonText = "Annuleren") {
             return new Promise((resolve) => {
                 modalTitle.textContent = title;
                 modalMessage.textContent = message;
+                modalConfirmBtn.textContent = confirmButtonText;
+                modalCancelBtn.textContent = cancelButtonText;
                 specialRuleModal.classList.add('active');
 
                 const confirmHandler = () => {
@@ -539,7 +563,7 @@
                     saveGameData();
                     renderPlayers();
                     renderScoreHistory();
-                    renderLastRoundSummary(); // Update summary after deletion
+                    renderCurrentScores(); // Update current scores after deletion
                 };
             });
         }
@@ -605,7 +629,7 @@
             // After recalculation, update UI
             renderPlayers();
             renderScoreHistory();
-            renderLastRoundSummary();
+            renderCurrentScores(); // Update current scores after recalculation
             saveGameData();
         }
 
@@ -663,7 +687,9 @@
 
                 // Zorg ervoor dat er verschillende laagste en hoogste scores zijn om te wisselen
                 if (minScore !== maxScore) {
-                    const message = `Iemand heeft 69 punten behaald! De spelers met de laagste score (${minScore} punten) en de spelers met de hoogste score (${maxScore} punten) zullen van score wisselen.`;
+                    const lowestNames = lowestScorePlayers.map(p => p.name).join(', ');
+                    const highestNames = highestScorePlayers.map(p => p.name).join(', ');
+                    const message = `Iemand heeft 69 punten behaald! De spelers ${lowestNames} (laagste score: ${minScore} punten) en ${highestNames} (hoogste score: ${maxScore} punten) zullen van score wisselen.`;
                     if (showModals) {
                         playTadaaSound();
                         const confirmed = await showConfirmationModal("Score Wissel!", message);
@@ -716,15 +742,34 @@
         async function applyRoundScores() {
             const currentRoundInputScores = []; // Stores the raw scores entered for this round
             const winnerId = document.querySelector('input[name="winner"]:checked')?.value;
+            const activePlayersCount = players.filter(p => !p.hasLost).length;
 
-            // Get scores from inputs for active players
+            const minAllowedScore = -5; // Minimum score is fixed at -5
+            const maxAllowedScore = 25 * activePlayersCount; // Maximum score is 25 times active players
+            let scoresOutOfRange = [];
+
+            // Get scores from inputs for active players and check range
             document.querySelectorAll('.score-input').forEach(input => {
                 const playerId = input.dataset.playerId;
                 const score = parseInt(input.value, 10);
                 if (!isNaN(score)) {
                     currentRoundInputScores.push({ playerId, score, isWinner: playerId === winnerId });
+                    // Check if score is less than -5 OR greater than 25 * activePlayersCount
+                    if (score < minAllowedScore || score > maxAllowedScore) {
+                        const playerName = players.find(p => p.id === playerId)?.name || 'Onbekende speler';
+                        scoresOutOfRange.push(`${playerName} (${score} punten)`);
+                    }
                 }
             });
+
+            if (scoresOutOfRange.length > 0) {
+                const warningMessage = `De volgende scores lijken onlogisch (onder -5 of boven ${maxAllowedScore} per speler):\n\n${scoresOutOfRange.join('\n')}\n\nWilt u deze scores toch gebruiken of aanpassen?`;
+                const confirmed = await showConfirmationModal("Onlogische score", warningMessage, "Toch gebruiken", "Score aanpassen"); // Updated button texts
+                if (!confirmed) {
+                    // User chose to cancel and adjust scores
+                    return;
+                }
+            }
 
             // Apply points to total scores for active players
             players.forEach(p => {
@@ -762,7 +807,7 @@
             // Update UI and save
             renderPlayers();
             renderScoreHistory();
-            renderLastRoundSummary();
+            renderCurrentScores(); // Update current scores
             saveGameData();
 
             // Reset current round inputs
@@ -782,30 +827,38 @@
         }
 
         /**
-         * Renders the summary of the last completed round.
+         * Renders the current total scores for all players.
          */
-        function renderLastRoundSummary() {
-            if (gameHistory.length === 0) {
-                lastRoundSummaryDiv.innerHTML = '<p class="text-gray-600">Nog geen rondes gespeeld.</p>';
+        function renderCurrentScores() {
+            if (players.length === 0) {
+                currentScoresDisplayDiv.innerHTML = '<p class="text-gray-600">Nog geen spelers.</p>';
                 return;
             }
 
-            const lastRoundEntry = gameHistory[gameHistory.length - 1];
-            let summaryHtml = `<p class="text-gray-700 font-medium mb-2">Ronde ${lastRoundEntry.roundNumber} Scores:</p><ul class="list-disc list-inside space-y-1">`;
+            let currentScoresHtml = '<ul class="list-disc list-inside space-y-1">';
+            const remainingActivePlayers = players.filter(p => !p.hasLost);
+            const gameWinner = (remainingActivePlayers.length === 1 && players.length > 1) ? remainingActivePlayers[0] : null;
 
-            lastRoundEntry.roundInputScores.forEach(inputScoreEntry => {
-                const player = players.find(p => p.id === inputScoreEntry.playerId);
-                const playerState = lastRoundEntry.endOfRoundPlayerStates.find(state => state.playerId === inputScoreEntry.playerId);
 
-                if (player && playerState) {
-                    const winnerText = inputScoreEntry.isWinner ? ' (Winnaar)' : '';
-                    summaryHtml += `<li class="${inputScoreEntry.isWinner ? 'font-semibold text-green-700' : 'text-gray-600'}">
-                        ${player.name}: Toegevoegd ${inputScoreEntry.score} punten (Totaal: ${playerState.totalScore})${winnerText}
-                    </li>`;
+            players.forEach(player => {
+                let statusText = '';
+                if (player.hasLost) {
+                    statusText = '<span class="lost-indicator"> (Verloren)</span>';
+                } else if (player.hasFewerCards) {
+                    statusText = '<span class="fewer-cards-indicator"> (4 kaarten)</span>';
                 }
+
+                let winnerIndicator = '';
+                if (gameWinner && player.id === gameWinner.id) {
+                    winnerIndicator = '<span class="text-green-700 font-bold"> (Winnaar)</span>';
+                }
+
+                currentScoresHtml += `<li class="text-gray-700 font-medium">
+                    ${player.name}: <span class="total-score-history-display">${player.totalScore}</span> punten ${statusText}${winnerIndicator}
+                </li>`;
             });
-            summaryHtml += '</ul>';
-            lastRoundSummaryDiv.innerHTML = summaryHtml;
+            currentScoresHtml += '</ul>';
+            currentScoresDisplayDiv.innerHTML = currentScoresHtml;
         }
 
 
@@ -814,7 +867,7 @@
          */
         function renderScoreHistory() {
             scoreHistoryBody.innerHTML = '';
-            const historyTableHead = document.querySelector('.history-table thead tr');
+            const historyTableHead = document.querySelector('.history-table th:first-child').parentNode; // Get the tr element
             historyTableHead.innerHTML = '<th>Ronde</th>'; // Reset header
 
             players.forEach(p => {
@@ -924,7 +977,7 @@
                 loadGameData(); // Load default players
                 renderPlayers();
                 renderScoreHistory();
-                renderLastRoundSummary(); // Clear/reset summary
+                renderCurrentScores(); // Clear/reset current scores
                 applyRoundBtn.disabled = false; // Re-enable apply button
                 // Reset current round inputs
                 document.querySelectorAll('.score-input').forEach(input => input.value = '0');
@@ -948,7 +1001,7 @@
                 saveGameData();
                 renderPlayers();
                 renderScoreHistory(); // Update history header
-                renderLastRoundSummary(); // Update summary
+                renderCurrentScores(); // Update current scores
             }
         });
 
@@ -965,7 +1018,7 @@
             loadGameData();
             renderPlayers();
             renderScoreHistory();
-            renderLastRoundSummary(); // Render summary on initial load
+            renderCurrentScores(); // Render current scores on initial load
         };
 
     </script>
