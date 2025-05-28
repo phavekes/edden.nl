@@ -57,6 +57,11 @@ De andere spelers spelen door tot de winnaar over blijft.
 - Als jouw puntenaantal gelijk is aan je **geboortejaar** (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
 - Als je je **hand leeg** speelt (je hebt bijvoorbeeld nog twee 5-en in je hand, en die leg je tegelijkertijd weg), krijg je (een keer) -1 op je eindscore voor deze ronde.
 
+## Online punten tellen
+
+De scores hou je natuurlijk bij op een papiertje met het nodige hoofdrekenwerk. Of je gebruikt [de online Edden Score app](/score/).
+ 
+
 ## Suggesties
 
 Ken jij andere regels, of heb je een foutje gezien?
