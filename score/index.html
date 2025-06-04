@@ -501,19 +501,59 @@
                 `;
                 playersContainer.appendChild(playerRow);
 
+                // Attach placeholder clearing logic for player name input
+                const playerNameInput = playerRow.querySelector('.player-name-input');
+                if (player.name.startsWith('Speler ')) {
+                    playerNameInput.dataset.initialDefaultName = player.name; // Store the default name
+                }
+                playerNameInput.onfocus = function() {
+                    if (this.value.startsWith('Speler ')) {
+                        this.value = '';
+                    }
+                };
+                playerNameInput.onblur = function() {
+                    if (this.value === '') {
+                        this.value = this.dataset.initialDefaultName || `Speler ${players.indexOf(player) + 1}`;
+                    }
+                    // Update player name in data model
+                    const playerId = this.dataset.playerId;
+                    const p = players.find(p => p.id === playerId);
+                    if (p) {
+                        p.name = this.value;
+                        saveGameData();
+                        renderPlayers(); // Re-render to update current round inputs and history header
+                        renderScoreHistory();
+                        renderCurrentScores();
+                    }
+                };
+
+
                 // Current round input card - only render if player has NOT lost
                 if (!player.hasLost) {
                     const roundInputCard = document.createElement('div');
-                    roundInputCard.className = `bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col gap-2`; // Removed lost-player class here
+                    roundInputCard.className = `bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col gap-2`;
                     roundInputCard.innerHTML = `
                         <label class="font-semibold text-gray-700">${player.name}</label>
-                        <input type="number" class="score-input" data-player-id="${player.id}" value="0" min="0">
+                        <input type="number" class="score-input" data-player-id="${player.id}" value="0">
                         <div class="winner-radio flex items-center justify-center gap-2">
                             <input type="radio" name="winner" id="winner-${player.id}" value="${player.id}" class="form-radio text-indigo-600">
                             <label for="winner-${player.id}" class="text-sm text-gray-600">Winnaar</label>
                         </div>
                     `;
                     currentRoundInputsContainer.appendChild(roundInputCard);
+
+                    // Attach placeholder clearing logic for score input
+                    const scoreInput = roundInputCard.querySelector('.score-input');
+                    scoreInput.onfocus = function() {
+                        if (this.value === '0') {
+                            this.value = '';
+                        }
+                    };
+                    scoreInput.onblur = function() {
+                        if (this.value === '') {
+                            this.value = '0';
+                        }
+                    };
                 }
             });
 
@@ -525,6 +565,7 @@
          * Attaches event listeners for player name, DOB, and delete buttons.
          */
         function attachPlayerEventListeners() {
+            // Re-attaching onchange for player name input, but onblur handles the default name logic
             document.querySelectorAll('.player-name-input').forEach(input => {
                 input.onchange = (e) => {
                     const playerId = e.target.dataset.playerId;
@@ -971,15 +1012,30 @@
          */
         function restartGame() {
             if (confirm("Weet je zeker dat je het spel wilt herstarten? Alle scores gaan verloren.")) {
-                localStorage.removeItem('eddenPlayers');
                 localStorage.removeItem('eddenGameHistory');
                 localStorage.removeItem('eddenRoundCounter');
-                loadGameData(); // Load default players
+
+                // Create a new array of players with scores reset, preserving name and dob
+                const resetPlayers = players.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    dob: p.dob,
+                    scores: [], // Reset individual round scores
+                    totalScore: 0, // Reset total score
+                    hasLost: false,
+                    hasFewerCards: false
+                }));
+
+                players = resetPlayers; // Reassign the global players array
+                gameHistory = []; // Ensure history is reset
+                roundCounter = 0; // Ensure round counter is reset
+
+                saveGameData(); // Save the newly reset players array and empty history
+
                 renderPlayers();
                 renderScoreHistory();
-                renderCurrentScores(); // Clear/reset current scores
-                applyRoundBtn.disabled = false; // Re-enable apply button
-                // Reset current round inputs
+                renderCurrentScores();
+                applyRoundBtn.disabled = false;
                 document.querySelectorAll('.score-input').forEach(input => input.value = '0');
                 document.querySelectorAll('input[name="winner"]').forEach(radio => radio.checked = false);
             }
