@@ -680,14 +680,28 @@
          */
         async function applySpecialRules(showModals = true) {
             const activePlayers = players.filter(p => !p.hasLost);
-            const currentYear = new Date().getFullYear();
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth(); // 0-11
+            const currentDay = currentDate.getDate();
+
             let rulesApplied = false;
 
             // Regel 1: Geboortejaar (Birth Year)
             // Als jouw puntenaantal gelijk is aan je geboortejaar (1988=88 punten, 2005=105 punten), wordt je leeftijd van je punten afgehaald.
             for (const player of activePlayers) {
-                const birthYear = player.dob ? new Date(player.dob).getFullYear() : null;
-                if (birthYear) {
+                const birthDate = player.dob ? new Date(player.dob) : null;
+                if (birthDate) {
+                    const birthYear = birthDate.getFullYear();
+                    const birthMonth = birthDate.getMonth();
+                    const birthDay = birthDate.getDate();
+
+                    let age = currentYear - birthYear;
+                    // Check if birthday has passed this year
+                    if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)) {
+                        age--;
+                    }
+
                     let targetScoreForBirthYear = 0;
                     if (birthYear < 2000) {
                         targetScoreForBirthYear = birthYear % 100; // Bijv. 1988 -> 88
@@ -696,7 +710,6 @@
                     }
 
                     if (player.totalScore === targetScoreForBirthYear) {
-                        const age = currentYear - birthYear;
                         const message = `${player.name} heeft zijn/haar geboortejaar-score (${targetScoreForBirthYear} punten) bereikt! Zijn/haar leeftijd (${age}) wordt van de score afgetrokken.`;
                         if (showModals) {
                             playTadaaSound();
@@ -1012,30 +1025,25 @@
          */
         function restartGame() {
             if (confirm("Weet je zeker dat je het spel wilt herstarten? Alle scores gaan verloren.")) {
-                localStorage.removeItem('eddenGameHistory');
-                localStorage.removeItem('eddenRoundCounter');
+                // Reset properties of existing player objects in place
+                players.forEach(p => {
+                    p.scores = [];
+                    p.totalScore = 0;
+                    p.hasLost = false;
+                    p.hasFewerCards = false;
+                });
 
-                // Create a new array of players with scores reset, preserving name and dob
-                const resetPlayers = players.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    dob: p.dob,
-                    scores: [], // Reset individual round scores
-                    totalScore: 0, // Reset total score
-                    hasLost: false,
-                    hasFewerCards: false
-                }));
+                gameHistory = []; // Clear game history
+                roundCounter = 0; // Reset round counter
 
-                players = resetPlayers; // Reassign the global players array
-                gameHistory = []; // Ensure history is reset
-                roundCounter = 0; // Ensure round counter is reset
+                saveGameData(); // Save the reset state to local storage
 
-                saveGameData(); // Save the newly reset players array and empty history
+                renderPlayers(); // Re-render players (updates current round inputs and player list)
+                renderScoreHistory(); // Re-render history (should be empty)
+                renderCurrentScores(); // Re-render current scores (should all be zero)
 
-                renderPlayers();
-                renderScoreHistory();
-                renderCurrentScores();
-                applyRoundBtn.disabled = false;
+                applyRoundBtn.disabled = false; // Re-enable apply button
+                // Reset current round input fields to '0' and clear winner selection
                 document.querySelectorAll('.score-input').forEach(input => input.value = '0');
                 document.querySelectorAll('input[name="winner"]').forEach(radio => radio.checked = false);
             }
