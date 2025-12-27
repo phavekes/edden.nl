@@ -60,7 +60,6 @@ De andere spelers spelen door tot de winnaar over blijft.
 ## Online punten tellen
 
 De scores hou je natuurlijk bij op een papiertje met het nodige hoofdrekenwerk. Of je gebruikt [de online Edden Score app](/score/).
- 
 
 ## Suggesties
 
